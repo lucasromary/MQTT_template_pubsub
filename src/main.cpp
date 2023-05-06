@@ -4,15 +4,13 @@
 
 // Update these with values suitable for your network.
 
-const char* ssid = "LucasR";
-const char* password = "lucasromary3";
+const char* ssid = "CP41_IOT";
+const char* password = "12345678";
 const char* mqtt_server = "mqtt.ci-ciad.utbm.fr";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 unsigned long lastMsg = 0;
-#define MSG_BUFFER_SIZE	(50)
-char msg[MSG_BUFFER_SIZE];
 int value = 0;
 
 void setup_wifi() {
@@ -39,22 +37,19 @@ void setup_wifi() {
   Serial.println(WiFi.localIP());
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+void callback(String topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
+  String messageTemp;
+
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
+    messageTemp += (char)payload[i];
   }
-  Serial.println();
 
-  // Switch on the LED if an 1 was received as first character
-  if ((char)payload[0] == '1') {
-    digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-    // but actually the LED is on; this is because
-    // it is active low on the ESP-01)
-  } else {
-    digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+  if(topic == "inTopic") {
+    Serial.println("Youpi !");
   }
 
 }
@@ -100,9 +95,8 @@ void loop() {
   if (now - lastMsg > 2000) {
     lastMsg = now;
     ++value;
-    snprintf (msg, MSG_BUFFER_SIZE, "hello world #%ld", value);
     Serial.print("Publish message: ");
-    Serial.println(msg);
-    client.publish("outTopic", msg);
+    Serial.println(value);
+    client.publish("outTopic", String(value).c_str());
   }
 }
